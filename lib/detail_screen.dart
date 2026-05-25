@@ -76,6 +76,20 @@ class _DetailScreenState extends State<DetailScreen> {
                 widget.pokemonSummary.imageUrl,
                 height: 220,
                 fit: BoxFit.contain,
+                loadingBuilder: (context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+                  return SizedBox(
+                    height: 220,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 3,
+                        color: Colors.white70,
+                      ),
+                    ),
+                  );
+                },
+                errorBuilder: (context, error, stackTrace) =>
+                    const Icon(Icons.image_not_supported, size: 80, color: Colors.white54),
               ),
             ),
           ),

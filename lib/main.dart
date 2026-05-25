@@ -25,9 +25,7 @@ class PokedexApp extends StatelessWidget {
           elevation: 0,
         ),
         useMaterial3: true,
-        textTheme: const TextTheme(
-          bodyMedium: TextStyle(fontFamily: 'Roboto'),
-        ),
+        textTheme: const TextTheme().apply(fontFamily: 'Roboto'),
       ),
       debugShowCheckedModeBanner: false,
       home: const HomeScreen(),

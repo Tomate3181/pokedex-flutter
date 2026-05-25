@@ -23,6 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final int _limit = 20;
   bool _hasMore = true;
   bool _isSearching = false;
+  bool _showBackToTopButton = false;
 
   @override
   void initState() {
@@ -39,6 +40,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _onScroll() {
+    if (_scrollController.offset >= 400 && !_showBackToTopButton) {
+      setState(() {
+        _showBackToTopButton = true;
+      });
+    } else if (_scrollController.offset < 400 && _showBackToTopButton) {
+      setState(() {
+        _showBackToTopButton = false;
+      });
+    }
+
     if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
       if (!_isLoading && _hasMore && !_isSearching) {
         _fetchList();
@@ -121,6 +132,20 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text('Pokédex', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
       ),
+      floatingActionButton: _showBackToTopButton
+          ? FloatingActionButton(
+              onPressed: () {
+                _scrollController.animateTo(
+                  0,
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeInOut,
+                );
+              },
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+              child: const Icon(Icons.arrow_upward),
+            )
+          : null,
       body: Column(
         children: [
           Container(
@@ -241,13 +266,25 @@ class _HomeScreenState extends State<HomeScreen> {
               contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               leading: Hero(
                 tag: 'poke-${pokemon.id}',
-                child: FadeInImage.assetNetwork(
-                  placeholder: '',
-                  image: pokemon.imageUrl,
+                child: Image.network(
+                  pokemon.imageUrl,
                   width: 60,
                   height: 60,
                   fit: BoxFit.contain,
-                  imageErrorBuilder: (context, error, stackTrace) =>
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return const SizedBox(
+                      width: 60,
+                      height: 60,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.redAccent,
+                        ),
+                      ),
+                    );
+                  },
+                  errorBuilder: (context, error, stackTrace) =>
                       const Icon(Icons.image_not_supported, size: 40, color: Colors.grey),
                 ),
               ),
